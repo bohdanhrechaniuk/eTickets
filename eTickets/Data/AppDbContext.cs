@@ -7,7 +7,7 @@ namespace eTickets.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options ) : base(options)
         {
-
+            Database.EnsureCreated();
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,7 +23,7 @@ namespace eTickets.Data
             base.OnModelCreating(modelBuilder);
         }
         public DbSet<Actor> Actors { get; set; }
-        public DbSet<Actor> Movies { get; set; }
+        public DbSet<Movie> Movies { get; set; }
         public DbSet<Actor_Movie> Actors_Movies { get; set; }
         public DbSet<Cinema> Cinemas { get; set; }
         public DbSet<Producer> Producers { get; set; }
