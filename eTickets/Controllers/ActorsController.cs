@@ -73,7 +73,7 @@ namespace eTickets.Controllers
             }
             return View(actorDetails);
         }
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var actorDetails = await _service.GetByIdAsync(id);
