@@ -49,7 +49,8 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Movies}/{action=Index}/{id?}");
+
 AppDbInitializer.Seed(app);
-AppDbInitializer.SeedUsersAndRolesAsync(app).Wait();
+await AppDbInitializer.SeedUsersAndRolesAsync(app);
 app.Run();
