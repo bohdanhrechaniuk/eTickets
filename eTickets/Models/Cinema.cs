@@ -1,4 +1,5 @@
 ﻿using eTickets.Data.Base;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System.ComponentModel.DataAnnotations;
 
 namespace eTickets.Models
@@ -16,7 +17,7 @@ namespace eTickets.Models
         [Display(Name = "Description")]
         [Required(ErrorMessage = "Cinema description is required")]
         public string Description { get; set; }
-
+        [ValidateNever]
         public List<Movie> Movies { get;set; }  
     }
 }
