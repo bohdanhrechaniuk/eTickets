@@ -1,5 +1,6 @@
 ﻿using eTickets.Data;
 using eTickets.Data.Static;
+using eTickets.Data.Validation;
 using eTickets.Data.ViewModels;
 using eTickets.Models;
 using Microsoft.AspNetCore.Identity;
@@ -55,6 +56,13 @@ namespace eTickets.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterVM registerVM)
         {
+            var validator = new PasswordValidator1();
+            var validationResult = validator.Validate(registerVM);
+
+            if (!validationResult.IsValid)
+            {
+                TempData["Error"] = "Password  should have lowercase,undercase,symbol and digits";
+            }
             if (!ModelState.IsValid) return View(registerVM);
 
             var user = await _userManager.FindByEmailAsync(registerVM.EmailAddress);
