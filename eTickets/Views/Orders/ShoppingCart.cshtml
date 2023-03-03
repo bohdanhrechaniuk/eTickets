@@ -60,7 +60,7 @@
                 @*<a class="btn btn-outline-primary" asp-action="CompleteOrder">
                         Complete order
                     </a>*@
-                <div id="paypal-btn"></div>
+                    <div id="paypal-btn"></div>
                 <span style="padding:5px"></span>
                 <a class="btn btn-outline-success" asp-controller="Movies" asp-action="Index">
                     Add more items
@@ -72,7 +72,7 @@
 </div>
 @section Scripts{
 
-        <script src="https://www.paypalobjects.com/api/checkout.js"></script>
+        <script src="https://www.paypalobjects.com/api/checkout.js"></script>   
 
         <script>
                 let _total = @Html.Raw(Model.ShoppingCartTotal);
@@ -104,10 +104,10 @@
                 },
                 //Execute the payment
                 onAuthorize: function (data, actions) {
-                        return actions.payment.execute().then(function () {
-                        var url = '@Url.Action("CompleteOrder", "Orders", new { })';
-                        window.location.href = url;
-                    });
+                return actions.payment.execute().then(function () {
+                    var url = '@Url.Action("CompleteOrder", "Orders", new { })';
+                    window.location.href = url;
+                });
                 }
             }, '#paypal-btn')
         </script>
