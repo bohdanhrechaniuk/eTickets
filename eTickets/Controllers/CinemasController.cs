@@ -5,6 +5,9 @@ using eTickets.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop.Implementation;
+using System.Text;
+using System.Text.Json;
 
 namespace eTickets.Controllers
 {
@@ -12,14 +15,19 @@ namespace eTickets.Controllers
     public class CinemasController : Controller
     {
         private readonly ICinemasService _service;
-        public CinemasController(ICinemasService service)
+        private readonly ILogger<CinemasController> _logger;
+        public CinemasController(ICinemasService service,ILogger<CinemasController> logger1)
         {
             _service = service;
+            _logger = logger1;
         }
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         { 
             var allCinemas = await _service.GetAllAsync();
+            var json = JsonSerializer.SerializeToUtf8Bytes(allCinemas);
+            var text=Encoding.UTF8.GetString(json);
+            _logger.LogError(text);
             return View(allCinemas);
         }
         //Get: Cinemas/Create
