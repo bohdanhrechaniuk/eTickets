@@ -5,52 +5,74 @@ using eTickets.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NLog;
+using NLog.Web;
 
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddDbContext<AppDbContext>(options=>options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IActorsService, ActorsService>();
-builder.Services.AddScoped<IMoviesService, MoviesService>();
-builder.Services.AddScoped<IProducersService, ProducersService>();
-builder.Services.AddScoped<ICinemasService, CinemasService>();
-builder.Services.AddScoped<IOrdersService,OrdersService>();
-
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddScoped(sc => ShoppingCart.GetShoppingCart(sc));
-//Authentication and authorization
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
-builder.Services.AddMemoryCache();
-builder.Services.AddSession();
-builder.Services.AddAuthentication(options =>
+var logger = NLogBuilder
+            .ConfigureNLog("nlog.config")
+            .GetCurrentClassLogger();
+try
 {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-});
-var app = builder.Build();
+    logger.Debug("Initialization of program");
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Host.UseNLog();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+
+    // Add services to the container.
+    builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddControllersWithViews();
+    builder.Services.AddScoped<IActorsService, ActorsService>();
+    builder.Services.AddScoped<IMoviesService, MoviesService>();
+    builder.Services.AddScoped<IProducersService, ProducersService>();
+    builder.Services.AddScoped<ICinemasService, CinemasService>();
+    builder.Services.AddScoped<IOrdersService, OrdersService>();
+
+    builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+    builder.Services.AddScoped(sc => ShoppingCart.GetShoppingCart(sc));
+    //Authentication and authorization
+    builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+    builder.Services.AddMemoryCache();
+    builder.Services.AddSession();
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    });
+    var app = builder.Build();
+
+    // Configure the HTTP request pipeline.
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Home/Error");
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseStaticFiles();
+
+    app.UseRouting();
+    app.UseSession();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.UseAuthorization();
+
+    app.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Movies}/{action=Index}/{id?}");
+
+    AppDbInitializer.Seed(app);
+    await AppDbInitializer.SeedUsersAndRolesAsync(app);
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-app.UseSession();
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Movies}/{action=Index}/{id?}");
-
-AppDbInitializer.Seed(app);
-await AppDbInitializer.SeedUsersAndRolesAsync(app);
-app.Run();
+catch (Exception exception)
+{
+    // NLog: catch setup errors
+    logger.Error(exception, "Stopped program because of exception");
+    throw;
+}
+finally
+{
+    // Ensure to flush and stop internal timers/threads before application-exit (Avoid segmentation fault on Linux)
+    NLog.LogManager.Shutdown();
+}
