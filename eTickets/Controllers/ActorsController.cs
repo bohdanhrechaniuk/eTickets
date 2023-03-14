@@ -48,6 +48,7 @@ namespace eTickets.Controllers
             return View(actorDetails);
         }
         //Get: Actors/Edit
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var actorDetails = await _service.GetByIdAsync(id);

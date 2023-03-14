@@ -210,7 +210,7 @@ $.validator.addMethod( "cifES", function( value, element ) {
 		control_letter;
 
 	function isOdd( n ) {
-		return n % 2 === 0;
+		return false;
 	}
 
 	// Quick format test
