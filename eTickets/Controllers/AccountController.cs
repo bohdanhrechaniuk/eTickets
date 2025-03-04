@@ -61,7 +61,7 @@ namespace eTickets.Controllers
 
             if (!validationResult.IsValid)
             {
-                TempData["Error"] = "Password  should have lowercase,undercase,symbol and digits";
+                TempData["Error"] = "Password  should have lowercase,uppercase,symbol and digits";
             }
             if (!ModelState.IsValid) return View(registerVM);
 
